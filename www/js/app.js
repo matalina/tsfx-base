@@ -1877,6 +1877,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -1887,11 +1903,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     CommandLine: _CommandLine__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
   data: function data() {
-    return {};
+    return {
+      loading: false,
+      error: false
+    };
   },
   methods: _objectSpread({}, _objects_game__WEBPACK_IMPORTED_MODULE_3__["default"]),
   mounted: function mounted() {
-    this.loadGame();
+    if (this.$store.state.new_game) {
+      this.loadGame();
+    }
   }
 });
 
@@ -1949,7 +1970,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       this.count++;
       var output;
       var data = _commands__WEBPACK_IMPORTED_MODULE_0__["default"].parse(this.command, this.count);
-      console.log(data);
 
       if (data.command === null) {
         output = 'Invalid command';
@@ -1990,6 +2010,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       window.EventBus.fire('command-sent', {
         prompt: true,
+        action: false,
+        description: false,
+        story: false,
         text: data.text,
         output: output,
         timestamp: data.timestamp
@@ -2020,15 +2043,44 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+
+/*
+History Object
+    prompt
+    action
+    description
+    story
+    text
+    output (optional)
+    timestamp
+ */
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'History',
   props: ['story'],
   data: function data() {
-    return {};
+    return {
+      classes: {
+        'text-green-600': this.prompt,
+        'font-weight-bold': this.prompt,
+        'text-orange-600': this.action,
+        'text-gray-600': this.description,
+        'text-gray-800': this.scene
+      }
+    };
   },
-  methods: {
+  computed: {
     prompt: function prompt() {
       return this.story.prompt;
+    },
+    action: function action() {
+      return this.story.action;
+    },
+    description: function description() {
+      return this.story.description;
+    },
+    scene: function scene() {
+      return this.story.story;
     }
   }
 });
@@ -2099,9 +2151,16 @@ __webpack_require__.r(__webpack_exports__);
 
       _this.$store.dispatch('history', {
         prompt: false,
+        action: true,
+        description: false,
+        story: false,
         text: text,
         timestamp: moment__WEBPACK_IMPORTED_MODULE_1___default()().unix()
       });
+    });
+    EventBus.listen('begin-game', function () {// display open sequence
+      // display room 1 description
+      // display room exits
     });
   }
 });
@@ -34380,8 +34439,24 @@ var render = function() {
   return _c(
     "div",
     { staticClass: "h-full", attrs: { id: "app" } },
-    [_c("CommandLine"), _vm._v(" "), _c("Story")],
-    1
+    [
+      !_vm.loading ? [_c("CommandLine"), _vm._v(" "), _c("Story")] : _vm._e(),
+      _vm._v(" "),
+      _vm.loading
+        ? _c("div", { staticClass: "text-center m-64" }, [
+            _c("i", { staticClass: "fas fa-cog fa-spin fa-5x fa-fw" }),
+            _c("br"),
+            _vm._v("\n        Loading...\n    ")
+          ])
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.error
+        ? _c("div", { staticClass: "text-center m-64" }, [
+            _vm._v("\n        There was a problem we cannot resolve.\n    ")
+          ])
+        : _vm._e()
+    ],
+    2
   )
 }
 var staticRenderFns = []
@@ -34469,10 +34544,8 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", [
-    _vm.prompt()
-      ? _c("span", { staticClass: "prompt" }, [_vm._v("> ")])
-      : _vm._e(),
+  return _c("div", { class: _vm.classes }, [
+    _vm.prompt ? _c("span", [_vm._v("> ")]) : _vm._e(),
     _vm._v("\n    " + _vm._s(_vm.story.text) + "\n")
   ])
 }
@@ -47765,6 +47838,11 @@ var commands = {
       on: 'game',
       args: ['']
     },
+    help: {
+      command: 'help',
+      on: 'game',
+      args: []
+    },
     // Movement
     n: {
       command: 'move',
@@ -48150,6 +48228,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 /*
     # EventBus listing
+    - begin-game
     - command-sent
  */
 
@@ -48180,6 +48259,23 @@ function () {
 
 /***/ }),
 
+/***/ "./src/js/game/index.js":
+/*!******************************!*\
+  !*** ./src/js/game/index.js ***!
+  \******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ({
+  item: ['0001'],
+  npc: ['0001'],
+  room: ['0001', '0002']
+});
+
+/***/ }),
+
 /***/ "./src/js/objects/game.js":
 /*!********************************!*\
   !*** ./src/js/objects/game.js ***!
@@ -48189,15 +48285,175 @@ function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../game */ "./src/js/game/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var gray_matter__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! gray-matter */ "./node_modules/gray-matter/index.js");
+/* harmony import */ var gray_matter__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(gray_matter__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _room__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./room */ "./src/js/objects/room.js");
+/* harmony import */ var _item__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./item */ "./src/js/objects/item.js");
+/* harmony import */ var _person__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./person */ "./src/js/objects/person.js");
+
+
+
+
+
+
+var objs = {
+  item: 'Item',
+  npc: 'Person',
+  room: 'Room'
+};
 /* harmony default export */ __webpack_exports__["default"] = ({
   loadGame: function loadGame() {
+    var _this = this;
+
+    this.loading = true;
     console.log('loading game...');
+    var game_data = [];
+
+    var _loop = function _loop(type) {
+      var items = _game__WEBPACK_IMPORTED_MODULE_0__["default"][type];
+
+      var _loop2 = function _loop2(i) {
+        var number = items[i];
+        var file = number + '.md';
+        var call = axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("game/".concat(type, "/").concat(file)).then(function (response) {
+          var info = gray_matter__WEBPACK_IMPORTED_MODULE_2___default()(response.data);
+          var data = info.data;
+          data.description = info.content;
+
+          _this.$store.dispatch('load', {
+            type: type,
+            number: number,
+            data: data
+          });
+
+          return new Promise(function (resolve, reject) {
+            resolve(true);
+          });
+        })["catch"](function (error) {
+          return new Promise(function (resolve, reject) {
+            reject(error);
+          });
+        });
+        game_data.push(call);
+      };
+
+      for (var i in items) {
+        _loop2(i);
+      }
+    };
+
+    for (var type in _game__WEBPACK_IMPORTED_MODULE_0__["default"]) {
+      _loop(type);
+    }
+
+    Promise.all(game_data).then(function (response) {
+      console.log('done');
+      _this.loading = false;
+
+      _this.$store.dispatch('start');
+    })["catch"](function (error) {
+      console.log('There was a problem loading the game data.');
+      console.log(error);
+      _this.loading = false;
+      _this.error = true;
+    });
   },
   resetGame: function resetGame() {
     this.$store.dispatch('clear');
     this.loadGame();
   }
 });
+
+/***/ }),
+
+/***/ "./src/js/objects/item.js":
+/*!********************************!*\
+  !*** ./src/js/objects/item.js ***!
+  \********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Item; });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Item =
+/*#__PURE__*/
+function () {
+  function Item() {
+    _classCallCheck(this, Item);
+
+    this.name = null;
+    this.items = {};
+    this.description = null;
+  }
+
+  _createClass(Item, [{
+    key: "init",
+    value: function init(data) {
+      this.name = data.title;
+      this.items = data.items;
+      this.description = data.description;
+    }
+  }]);
+
+  return Item;
+}();
+
+
+;
+
+/***/ }),
+
+/***/ "./src/js/objects/person.js":
+/*!**********************************!*\
+  !*** ./src/js/objects/person.js ***!
+  \**********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Person; });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Person =
+/*#__PURE__*/
+function () {
+  function Person() {
+    _classCallCheck(this, Person);
+
+    this.name = null;
+    this.items = {};
+    this.description = null;
+  }
+
+  _createClass(Person, [{
+    key: "init",
+    value: function init(data) {
+      this.name = data.title;
+      this.items = data.items;
+      this.description = data.description;
+    }
+  }]);
+
+  return Person;
+}();
+
+
+;
 
 /***/ }),
 
@@ -48244,33 +48500,10 @@ function () {
   }
 
   _createClass(Room, [{
-    key: "load",
-    value: function load(room, store) {
-      var _this = this;
-
-      console.log('loading room ' + room);
-      axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("/game/room/".concat(room, ".md")).then(function (response) {
-        var file = response.data;
-        var info = matter(file);
-        var data = info.data;
-        _this.name = data.title;
-        _this.exits = data.exits;
-        _this.items = data.items;
-        _this.npcs = data.npcs;
-        _this.description = info.content;
-        store.dispatch('loadRoom', {
-          room: room,
-          data: _this
-        });
-      })["catch"](function (error) {
-        console.log(error);
-      });
-    }
-  }, {
     key: "init",
     value: function init(room, store) {
-      var info = store.state.rooms[room];
-      this.name = info.name;
+      var info = store.state.room[room];
+      this.name = info.title;
       this.exits = info.exits;
       this.items = info.items;
       this.npcs = info.npcs;
@@ -48332,12 +48565,16 @@ __webpack_require__.r(__webpack_exports__);
     var commit = _ref2.commit;
     commit('clear');
   },
-  loadRoom: function loadRoom(_ref3, data) {
+  load: function load(_ref3, data) {
     var commit = _ref3.commit;
-    commit('loadRoom', data);
+    commit('load', data);
   },
-  move: function move(_ref4, room) {
+  start: function start(_ref4) {
     var commit = _ref4.commit;
+    commit('start');
+  },
+  move: function move(_ref5, room) {
+    var commit = _ref5.commit;
     commit('move', room);
   }
 });
@@ -48397,10 +48634,14 @@ __webpack_require__.r(__webpack_exports__);
       state[key] = reset[key];
     });
   },
-  loadRoom: function loadRoom(state, _ref) {
-    var room = _ref.room,
+  load: function load(state, _ref) {
+    var type = _ref.type,
+        number = _ref.number,
         data = _ref.data;
-    state.rooms[room] = data;
+    state[type][number] = data;
+  },
+  start: function start(state) {
+    state.new_game = false;
   },
   move: function move(state, room) {
     state.current_room = room;
@@ -48420,11 +48661,12 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = (function () {
   return {
+    new_game: true,
     current_room: '0001',
     current_chapter: '0000',
-    rooms: {},
-    items: {},
-    npcs: {},
+    room: {},
+    item: {},
+    npc: {},
     character: {},
     history: []
   };
