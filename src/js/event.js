@@ -2,7 +2,8 @@ import Vue from "vue";
 
 /*
     # EventBus listing
-
+    - begin-game
+    - command-sent
  */
 
 export default new class {
