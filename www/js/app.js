@@ -2061,27 +2061,13 @@ History Object
   data: function data() {
     return {
       classes: {
-        'text-green-600': this.prompt,
-        'font-weight-bold': this.prompt,
-        'text-orange-600': this.action,
-        'text-gray-600': this.description,
-        'text-gray-800': this.scene
+        'text-green-600': this.story.prompt,
+        'font-semibold': this.story.prompt,
+        'text-orange-600': this.story.action,
+        'text-gray-600': this.story.description,
+        'text-gray-800': this.story.scene
       }
     };
-  },
-  computed: {
-    prompt: function prompt() {
-      return this.story.prompt;
-    },
-    action: function action() {
-      return this.story.action;
-    },
-    description: function description() {
-      return this.story.description;
-    },
-    scene: function scene() {
-      return this.story.story;
-    }
   }
 });
 
@@ -34545,7 +34531,7 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { class: _vm.classes }, [
-    _vm.prompt ? _c("span", [_vm._v("> ")]) : _vm._e(),
+    _vm.story.prompt ? _c("span", [_vm._v("> ")]) : _vm._e(),
     _vm._v("\n    " + _vm._s(_vm.story.text) + "\n")
   ])
 }

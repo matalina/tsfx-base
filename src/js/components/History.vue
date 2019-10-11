@@ -3,7 +3,7 @@
         :class="classes"
     >
         <span
-            v-if="prompt"
+            v-if="story.prompt"
         >> </span>
         {{ story.text }}
     </div>
@@ -26,28 +26,13 @@
         data() {
             return {
                 classes: {
-                    'text-green-600': this.prompt,
-                    'font-weight-bold': this.prompt,
-                    'text-orange-600': this.action,
-                    'text-gray-600': this.description,
-                    'text-gray-800': this.scene,
+                    'text-green-600': this.story.prompt,
+                    'font-semibold': this.story.prompt,
+                    'text-orange-600': this.story.action,
+                    'text-gray-600': this.story.description,
+                    'text-gray-800': this.story.scene,
                 }
             };
         },
-        computed: {
-            prompt() {
-                return this.story.prompt;
-            },
-            action() {
-                return this.story.action;
-            },
-            description() {
-                return this.story.description;
-            },
-            scene() {
-                return this.story.story;
-            }
-
-        }
     }
 </script>
