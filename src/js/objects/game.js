@@ -1,7 +1,9 @@
-import game from '../game';
+
 import axios from 'axios';
+import moment from 'moment';
 import matter from "gray-matter";
 
+import game from '../game';
 import Room from "./room";
 import Item from "./item";
 import Person from "./person";
@@ -13,7 +15,7 @@ const objs = {
 };
 
 export default {
-    loadGame() {
+    load() {
         this.loading = true;
         console.log('loading game...');
 
@@ -52,9 +54,10 @@ export default {
 
         Promise.all(game_data)
             .then((response) => {
-                console.log('done')
+                console.log('... loading done');
                 this.loading = false;
                 this.$store.dispatch('start');
+                this.start();
             })
             .catch((error) => {
                 console.log('There was a problem loading the game data.');
@@ -64,8 +67,21 @@ export default {
             })
 
     },
-    resetGame() {
+    reset() {
         this.$store.dispatch('clear');
-        this.loadGame();
+        this.load();
     },
+    start() {
+        console.log('staring game...');
+        // display open sequence
+
+        // display room 1 description
+        let room = new Room();
+        let number = this.$store.state.current_room;
+        room.init(number, this.$store);
+        room.look(this.$store);
+    },
+    help() {
+
+    }
 }

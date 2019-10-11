@@ -14,10 +14,10 @@
 </template>
 
 <script>
-    import commands from "../commands";
+    import moment from 'moment';
+    import commands from "../commands/";
     import game from '../objects/game';
     import Room from '../objects/room'
-    import moment from 'moment';
 
     export default {
         name: 'CommandLine',
@@ -31,55 +31,47 @@
             ...game,
             execute() {
                 this.count++;
-                let output;
+                let output = null;
                 let data = commands.parse(this.command, this.count);
 
+                this.$store.dispatch('history', {
+                    type: 'prompt',
+                    text: data.text,
+                    timestamp: moment().unix(),
+                });
+
                 if(data.command === null) {
-                    output = 'Invalid command';
-                }
-                else {
-                    switch (data.command.on) {
-                        case 'room':
-                            let room_number = this.$store.state.current_room;
-                            let room = new Room();
-                            room.init(room_number, this.$store);
-                            let obj = room[data.command.command](data.command.args[0], this.$store);
-                            if(obj.success) {
-                                output = obj.output;
-                            }
-                            else {
-                                output = obj.output;
-                            }
-                            break;
-                        case 'item':
-                            output = 'Do an action on an item';
-                            break;
-                        case 'npc':
-                            output = 'Talk to an NPC';
-                            break;
-                        case 'game':
-                            output = 'Action on game';
-                            this.command = null;
-                            this[data.command.command]();
-                            return;
-                        default:
-                            output = 'No idea what you want to do';
-                    }
+                    this.$store.dispatch('history', {
+                        type: 'error',
+                        text: 'Invalid command',
+                        timestamp: moment().unix(),
+                    });
+
+                    return;
                 }
 
-                window.EventBus.fire('command-sent', {
-                    prompt: true,
-                    action: false,
-                    description: false,
-                    story: false,
-                    text: data.text,
-                    output,
-                    timestamp: data.timestamp,
-                });
+                switch (data.command.on) {
+                    case 'room':
+                        let room_number = this.$store.state.current_room;
+                        let room = new Room();
+                        room.init(room_number, this.$store);
+                        room[data.command.command](this.$store, ...data.command.args);
+                        break;
+                    case 'item':
+                        output = 'Do an action on an item';
+                        break;
+                    case 'npc':
+                        output = 'Talk to an NPC';
+                        break;
+                    case 'game':
+                        this[data.command.command]();
+                        break;
+                    default:
+                        output = 'No idea what you want to do';
+                }
 
                 this.command = null;
             },
-
-        }
+        },
     }
 </script>

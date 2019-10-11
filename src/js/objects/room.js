@@ -1,4 +1,5 @@
-import axios from 'axios';
+import moment from 'moment';
+
 const matter = require('gray-matter');
 
 const dirs = {
@@ -20,19 +21,36 @@ export default class Room {
 
     init(room, store) {
         let info = store.state.room[room];
-
-        this.name = info.title;
+        this.name = info.name;
         this.exits = info.exits;
         this.items = info.items;
         this.npcs = info.npcs;
         this.description = info.description;
     }
 
-    look() {
-        return this.description;
+    look(store) {
+        let text = this.description;
+        let count = 0;
+        let total = Object.keys(this.exits).length;
+        text += `\n\n_**Exits:** `;
+        for(let i in this.exits) {
+            count++;
+            text += i;
+
+            if(count < total) {
+                text += ', ';
+            }
+        }
+        text += '_\n';
+
+        store.dispatch('history', {
+            type: 'description',
+            text,
+            timestamp: moment().unix(),
+        });
     }
 
-    move(dir, store) {
+    move(store, dir) {
         let room = this.exits[dir];
         if(room === undefined) {
             dir = dirs[dir];
@@ -40,17 +58,24 @@ export default class Room {
         }
 
         if(room === undefined) {
-            return {
-                success: false,
-                output: 'You may not move that direction.',
-            }
+            store.dispatch('history', {
+                type: 'error',
+                text: 'You may not move in that direction.',
+                timestamp: moment().unix(),
+            });
+            return;
         }
 
-        return {
-            success: true,
-            output: `You move ${dir}.`,
-            room,
-        }
+        store.dispatch('history', {
+            type: 'action',
+            text: `You move ${dir}.`,
+            timestamp: moment().unix(),
+        });
 
+        store.dispatch('move', room);
+
+        let new_room = new Room();
+        new_room.init(room, store);
+        new_room.look(store);
     }
 };

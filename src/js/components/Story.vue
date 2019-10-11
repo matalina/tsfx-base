@@ -42,29 +42,6 @@
 
         },
         mounted() {
-            EventBus.listen('command-sent', (command) => {
-                let text = command.output;
-                delete(command.output);
-                this.$store.dispatch('history',command);
-
-                this.$store.dispatch('history', {
-                    prompt: false,
-                    action: true,
-                    description: false,
-                    story: false,
-                    text,
-                    timestamp: moment().unix(),
-                });
-
-            });
-
-            EventBus.listen('begin-game', () => {
-                // display open sequence
-
-                // display room 1 description
-
-                // display room exits
-            });
         }
     }
 </script>

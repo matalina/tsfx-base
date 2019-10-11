@@ -22,6 +22,8 @@
 </template>
 
 <script>
+    import moment from 'moment';
+
     import Story from "./Story";
     import CommandLine from "./CommandLine";
 
@@ -41,8 +43,9 @@
         },
         mounted() {
             if(this.$store.state.new_game) {
-                this.loadGame();
+                this.load();
             }
+
         }
 
     }

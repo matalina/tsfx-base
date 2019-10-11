@@ -1,21 +1,15 @@
 <template>
     <div
         :class="classes"
-    >
-        <span
-            v-if="story.prompt"
-        >> </span>
-        {{ story.text }}
-    </div>
+        v-html="markdown(story.text)"
+    ></div>
 </template>
 
 <script>
+    let md = require('markdown-it')();
     /*
     History Object
-        prompt
-        action
-        description
-        story
+        type
         text
         output (optional)
         timestamp
@@ -26,13 +20,22 @@
         data() {
             return {
                 classes: {
-                    'text-green-600': this.story.prompt,
-                    'font-semibold': this.story.prompt,
-                    'text-orange-600': this.story.action,
-                    'text-gray-600': this.story.description,
-                    'text-gray-800': this.story.scene,
+                    'text-green-600': this.isType('prompt'),
+                    'font-semibold': this.isType('prompt'),
+                    'text-orange-600': this.isType('action'),
+                    'text-gray-600': this.isType('description'),
+                    'text-gray-800': this.isType('scene'),
+                    'text-red-600': this.isType('error'),
                 }
             };
         },
+        methods: {
+            isType(name) {
+                return this.story.type === name;
+            },
+            markdown(value) {
+                return md.render(value);
+            }
+        }
     }
 </script>
