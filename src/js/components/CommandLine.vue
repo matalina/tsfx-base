@@ -1,14 +1,21 @@
 <template>
     <div
-        class="w-full bg-white fixed top-0 left-0 p-3 border-b border-black"
+        class="w-full bg-gray-900 fixed top-0 left-0 p-3 shadow-md flex"
         id="command-line"
     >
+        <label
+            class="text-green-300 p-2 border-b-4 border-green-300 flex-initial"
+        >
+            <i class="fas fa-terminal fa-fw"></i>
+        </label>
         <input
             type="text"
             v-model="command"
-            class="border-b border-green-500 p-2 w-full"
+            class="inline-block bg-gray-900 text-green-300 border-b-4 border-green-300 p-2 w-full flex-initial"
             @keyup.enter="execute()"
             placeholder="Enter Command here"
+            style="outline: none"
+            autofocus
         />
     </div>
 </template>

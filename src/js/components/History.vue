@@ -1,12 +1,24 @@
 <template>
     <div
+        class="shadow m-5 p-4 pb-1"
         :class="classes"
-        v-html="markdown(story.text)"
-    ></div>
+
+    >
+        <div class="inline-block">
+            <i class="fas fa-terminal fa-fw" v-if="isType('prompt')"></i>
+            <i class="far fa-arrow-right fa-fw" v-if="isType('action')"></i>
+            <i class="far fa-exclamation-triangle fa-fw" v-if="isType('warning')"></i>
+            <i class="far fa-hand-paper fa-fw" v-if="isType('error')"></i>
+        </div>
+        <div class="inline-block" v-html="markdown(story.text)"></div>
+    </div>
 </template>
 
 <script>
-    let md = require('markdown-it')();
+    const md = require('markdown-it')();
+    const fa = require('markdown-it-fontawesome');
+
+    md.use(fa);
     /*
     History Object
         type
@@ -19,15 +31,32 @@
         props: ['story'],
         data() {
             return {
-                classes: {
-                    'text-green-600': this.isType('prompt'),
-                    'font-semibold': this.isType('prompt'),
-                    'text-orange-600': this.isType('action'),
-                    'text-gray-600': this.isType('description'),
-                    'text-gray-800': this.isType('scene'),
-                    'text-red-600': this.isType('error'),
-                }
             };
+        },
+        computed: {
+            classes() {
+                if(this.isType('prompt')) {
+                    return 'text-green-600 font-bold'
+                }
+                else if(this.isType('action')) {
+                    return 'text-orange-600 font-bold'
+                }
+                else if(this.isType('description')) {
+                    return 'text-gray-600'
+                }
+                else if(this.isType('scene') ) {
+                    return 'text-gray-800'
+                }
+                else if(this.isType('error')) {
+                    return 'text-red-600'
+                }
+                else if(this.isType('warning')) {
+                    return 'text-yellow-500 font-bold';
+                }
+                else {
+                    return '';
+                }
+            }
         },
         methods: {
             isType(name) {

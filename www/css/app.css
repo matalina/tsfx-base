@@ -603,6 +603,53 @@ video {
   height: auto;
 }
 
+@-webkit-keyframes fa-blink {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fa-blink {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.fa-blink {
+  -webkit-animation: fa-blink 5s linear infinite;
+  animation: fa-blink 5s linear infinite;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
 .container {
   width: 100%;
 }

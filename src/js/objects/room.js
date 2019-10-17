@@ -15,6 +15,7 @@ export default class Room {
         this.exits = {};
         this.items = {};
         this.npcs = {};
+        this.locked = [];
 
         this.description = null;
     }
@@ -25,7 +26,12 @@ export default class Room {
         this.exits = info.exits;
         this.items = info.items;
         this.npcs = info.npcs;
+        this.locked = info.locked;
         this.description = info.description;
+    }
+
+    isLocked(dir) {
+        return this.locked !== undefined && this.locked.includes(dir)
     }
 
     look(store) {
@@ -36,12 +42,18 @@ export default class Room {
         for(let i in this.exits) {
             count++;
             text += i;
+            console.log(this);
+            if(this.isLocked(i)) {
+                text += ` :fa-lock-alt:`;
+            }
 
             if(count < total) {
                 text += ', ';
             }
         }
         text += '_\n';
+
+        text = `### ${this.name}` + "\n\n" +text;
 
         store.dispatch('history', {
             type: 'description',
@@ -55,6 +67,15 @@ export default class Room {
         if(room === undefined) {
             dir = dirs[dir];
             room = this.exits[dir];
+        }
+
+        if(this.isLocked(dir)) {
+            store.dispatch('history', {
+                type: 'warning',
+                text: 'This exit is locked. You must find the key to open it.',
+                timestamp: moment().unix(),
+            });
+            return;
         }
 
         if(room === undefined) {
