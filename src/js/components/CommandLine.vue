@@ -25,6 +25,7 @@
     import commands from "../commands/";
     import game from '../objects/game';
     import Room from '../objects/room'
+    import Person from "../objects/person";
 
     export default {
         name: 'CommandLine',
@@ -56,6 +57,7 @@
 
                     return;
                 }
+                console.log(data.command);
 
                 switch (data.command.on) {
                     case 'room':
@@ -68,7 +70,10 @@
                         output = 'Do an action on an item';
                         break;
                     case 'npc':
-                        output = 'Talk to an NPC';
+                        let npc = data.command.args[0];
+                        let person = new Person();
+                        person.init(npc, this.$store);
+                        person[data.command.command](this.$store, ...data.command.args);
                         break;
                     case 'game':
                         this[data.command.command]();

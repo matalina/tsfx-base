@@ -13,14 +13,14 @@ const tailwindcss = require('tailwindcss')
  */
 
 mix
-  .copy('src/index.html','www/index.html')
-    .copy('src/js/game/','www/game/')
-  .js('src/js/app.js', 'www/js')
-  .sass('src/scss/app.scss', 'www/css')
-  .options({
-    processCssUrls: false,
-    postCss: [ tailwindcss('./tailwind.config.js') ],
-  });
+    .copy('src/index.html','www/index.html')
+    .copyDirectory('src/js/game','www/game')
+    .js('src/js/app.js', 'www/js'
+    ).sass('src/scss/app.scss', 'www/css')
+    .options({
+        processCssUrls: false,
+        postCss: [ tailwindcss('./tailwind.config.js') ],
+    });
 
 // Full API
 // mix.js(src, output);

@@ -1935,6 +1935,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _commands___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../commands/ */ "./src/js/commands/index.js");
 /* harmony import */ var _objects_game__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../objects/game */ "./src/js/objects/game.js");
 /* harmony import */ var _objects_room__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../objects/room */ "./src/js/objects/room.js");
+/* harmony import */ var _objects_person__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../objects/person */ "./src/js/objects/person.js");
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -1975,6 +1976,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'CommandLine',
   data: function data() {
@@ -2003,6 +2005,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return;
       }
 
+      console.log(data.command);
+
       switch (data.command.on) {
         case 'room':
           var room_number = this.$store.state.current_room;
@@ -2016,7 +2020,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           break;
 
         case 'npc':
-          output = 'Talk to an NPC';
+          var npc = data.command.args[0];
+          var person = new _objects_person__WEBPACK_IMPORTED_MODULE_4__["default"]();
+          person.init(npc, this.$store);
+          person[data.command.command].apply(person, [this.$store].concat(_toConsumableArray(data.command.args)));
           break;
 
         case 'game':
@@ -57713,12 +57720,19 @@ function getCommand(matches) {
   return null;
 }
 
+function find(text) {
+  // is NPC
+  // is Item
+  return false;
+}
+
 var Command = {
   commands: _commands__WEBPACK_IMPORTED_MODULE_1__["default"],
   parse: function parse(text) {
     var re = /([^ ]+)+/g;
     var matches = text.match(re);
     var command = getCommand(matches);
+    console.log(text, command);
 
     if (command !== null && command.args.length === 0) {
       var command_index = matches.indexOf(command.command);
@@ -57729,8 +57743,33 @@ var Command = {
     if (command.on === null) {
       if (command.args.length === 0) {
         command.on = 'room';
-      } else {// look for item (name or short name)
-        // look for npc (name or short name)
+      } else {
+        // Look for self
+        if (command.args.includes('self')) {
+          command.on = 'npc';
+          command.args = ['0000'];
+        } // look for npc (name or short name)
+        // look for item (name or short name)
+        else {
+            var found = false;
+            var obj;
+
+            for (var i in command.args) {
+              var arg = command.args[i];
+              obj = find(arg);
+              found = true;
+
+              if (obj !== false) {
+                break;
+              }
+            }
+
+            if (!found) {
+              command = null;
+            } else {
+              command = obj;
+            }
+          }
       }
     }
 
@@ -58082,9 +58121,9 @@ function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
-  item: ['0001'],
-  npc: ['0001'],
-  room: ['0001', '0002', '0003']
+  item: ['0001', '0002', '0003', '0004', '0005', '0006', '0007', '0008', '0009'],
+  npc: ['0000', '0001'],
+  room: ['0001']
 });
 
 /***/ }),
@@ -58207,11 +58246,15 @@ var objs = {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Item; });
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_0__);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+
 
 var Item =
 /*#__PURE__*/
@@ -58230,6 +58273,17 @@ function () {
       this.name = data.title;
       this.items = data.items;
       this.description = data.description;
+    }
+  }, {
+    key: "look",
+    value: function look(store) {
+      var text = this.description;
+      text = "### ".concat(this.name) + "\n\n" + text;
+      store.dispatch('history', {
+        type: 'description',
+        text: text,
+        timestamp: moment__WEBPACK_IMPORTED_MODULE_0___default()().unix()
+      });
     }
   }]);
 
@@ -58251,11 +58305,15 @@ function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Person; });
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_0__);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+
 
 var Person =
 /*#__PURE__*/
@@ -58270,10 +58328,22 @@ function () {
 
   _createClass(Person, [{
     key: "init",
-    value: function init(data) {
-      this.name = data.title;
-      this.items = data.items;
-      this.description = data.description;
+    value: function init(person, store) {
+      var info = store.state.npc[person];
+      this.name = info.name;
+      this.items = info.items;
+      this.description = info.description;
+    }
+  }, {
+    key: "look",
+    value: function look(store) {
+      var text = this.description;
+      text = "### ".concat(this.name) + "\n\n" + text;
+      store.dispatch('history', {
+        type: 'description',
+        text: text,
+        timestamp: moment__WEBPACK_IMPORTED_MODULE_0___default()().unix()
+      });
     }
   }]);
 
