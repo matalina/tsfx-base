@@ -42,7 +42,7 @@ export default class Room {
         for(let i in this.exits) {
             count++;
             text += i;
-            console.log(this);
+
             if(this.isLocked(i)) {
                 text += ` :fa-lock-alt:`;
             }

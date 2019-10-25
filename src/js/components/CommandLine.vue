@@ -26,6 +26,8 @@
     import game from '../objects/game';
     import Room from '../objects/room'
     import Person from "../objects/person";
+    import Item from "../objects/item";
+    import Mouse from '../objects/mouse';
 
     export default {
         name: 'CommandLine',
@@ -33,6 +35,7 @@
             return {
                 command: null,
                 count: 0,
+                mouse: new Mouse(),
             };
         },
         methods: {
@@ -57,7 +60,6 @@
 
                     return;
                 }
-                console.log(data.command);
 
                 switch (data.command.on) {
                     case 'room':
@@ -67,7 +69,10 @@
                         room[data.command.command](this.$store, ...data.command.args);
                         break;
                     case 'item':
-                        output = 'Do an action on an item';
+                        let item = data.command.args[0];
+                        let obj = new Item();
+                        obj.init(item, this.$store);
+                        obj[data.command.command](this.$store, ...data.command.args);
                         break;
                     case 'npc':
                         let npc = data.command.args[0];
@@ -77,6 +82,9 @@
                         break;
                     case 'game':
                         this[data.command.command]();
+                        break;
+                    case 'mouse':
+                        this.mouse.do(data.command.args);
                         break;
                     default:
                         output = 'No idea what you want to do';

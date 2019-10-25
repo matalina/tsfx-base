@@ -1936,6 +1936,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _objects_game__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../objects/game */ "./src/js/objects/game.js");
 /* harmony import */ var _objects_room__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../objects/room */ "./src/js/objects/room.js");
 /* harmony import */ var _objects_person__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../objects/person */ "./src/js/objects/person.js");
+/* harmony import */ var _objects_item__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../objects/item */ "./src/js/objects/item.js");
+/* harmony import */ var _objects_mouse__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../objects/mouse */ "./src/js/objects/mouse.js");
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -1977,12 +1979,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 
+
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'CommandLine',
   data: function data() {
     return {
       command: null,
-      count: 0
+      count: 0,
+      mouse: new _objects_mouse__WEBPACK_IMPORTED_MODULE_6__["default"]()
     };
   },
   methods: _objectSpread({}, _objects_game__WEBPACK_IMPORTED_MODULE_2__["default"], {
@@ -2005,8 +2010,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return;
       }
 
-      console.log(data.command);
-
       switch (data.command.on) {
         case 'room':
           var room_number = this.$store.state.current_room;
@@ -2016,7 +2019,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           break;
 
         case 'item':
-          output = 'Do an action on an item';
+          var item = data.command.args[0];
+          var obj = new _objects_item__WEBPACK_IMPORTED_MODULE_5__["default"]();
+          obj.init(item, this.$store);
+          obj[data.command.command].apply(obj, [this.$store].concat(_toConsumableArray(data.command.args)));
           break;
 
         case 'npc':
@@ -2028,6 +2034,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         case 'game':
           this[data.command.command]();
+          break;
+
+        case 'mouse':
+          this.mouse["do"](data.command.args);
           break;
 
         default:
@@ -57688,7 +57698,29 @@ __webpack_require__.r(__webpack_exports__);
     command: 'look',
     on: null,
     args: []
-  }
+  },
+  // Special
+  mouse: {
+    command: 'mouse',
+    on: 'mouse',
+    args: []
+  } // Items:
+
+  /*
+  use: {command: 'use', on: 'item', args:[]},
+  take: {command: 'take', on: 'item', args:[]},
+  get: {command: 'take', on: 'item', args:[]},
+  place: {command: 'place', on: 'item', args:[]},
+  set: {command: 'place', on: 'item', args:[]},
+   */
+  // NPCs:
+
+  /*
+  say: {command: 'talk', on: 'item', args:[]},
+  ask: {command: 'talk', on: 'item', args:[]},
+  talk: {command: 'talk', on: 'item', args:[]},
+   */
+
 });
 
 /***/ }),
@@ -57705,8 +57737,109 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
 /* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _commands__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./commands */ "./src/js/commands/commands.js");
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store */ "./src/js/store/index.js");
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 
+
+
+
+var Action =
+/*#__PURE__*/
+function () {
+  function Action(command) {
+    _classCallCheck(this, Action);
+
+    this.command = command.command;
+    this.on = command.on;
+    this.args = command.args;
+  }
+
+  _createClass(Action, [{
+    key: "setOn",
+    value: function setOn(value) {
+      this.on = value;
+    }
+  }, {
+    key: "addArg",
+    value: function addArg(value) {
+      this.args.push(value);
+    }
+  }, {
+    key: "removeArg",
+    value: function removeArg(value) {
+      var index = this.arg.indexOf(value);
+      this.arg = this.arg.splice(index, 1);
+    }
+  }, {
+    key: "isValid",
+    value: function isValid() {
+      return this.command !== null;
+    }
+  }, {
+    key: "hasNoArguments",
+    value: function hasNoArguments() {
+      return this.args.length === 0;
+    }
+  }, {
+    key: "getArguments",
+    value: function getArguments(parts) {
+      var index = parts.indexOf(this.command);
+      var slice = parts.splice(index, 1);
+      this.args = parts;
+    }
+  }, {
+    key: "hasNoObject",
+    value: function hasNoObject() {
+      return this.on === null;
+    }
+  }, {
+    key: "getCommandObject",
+    value: function getCommandObject() {
+      return {
+        command: this.command,
+        on: this.on,
+        args: this.args
+      };
+    }
+  }, {
+    key: "findObject",
+    value: function findObject() {
+      var command = this; // empty arguments
+
+      if (command.args.length === 0) {
+        command.on = 'room';
+        command.args = [_store__WEBPACK_IMPORTED_MODULE_2__["default"].state.current_room];
+      } // Look for self
+      else if (command.args.includes('self')) {
+          command.on = 'npc';
+          command.args = ['0000'];
+        } // look for npc or item(name or short name)
+        else {
+            var obj;
+
+            for (var i in command.args) {
+              var arg = command.args[i];
+              obj = find(arg);
+
+              if (obj !== false) {
+                this.on = obj.on;
+                this.args = obj.args;
+                return true;
+              }
+            }
+
+            return false;
+          }
+    }
+  }]);
+
+  return Action;
+}();
 
 function getCommand(matches) {
   for (var i in matches) {
@@ -57721,8 +57854,42 @@ function getCommand(matches) {
 }
 
 function find(text) {
-  // is NPC
-  // is Item
+  // is self
+  if (text === 'self') {
+    return {
+      on: 'npc',
+      args: ['0000']
+    };
+  } // is NPC
+
+
+  var npcs = _store__WEBPACK_IMPORTED_MODULE_2__["default"].state.npc;
+
+  for (var i in npcs) {
+    var npc = npcs[i];
+
+    if (npc.shortname === text) {
+      return {
+        on: 'npc',
+        args: [i]
+      };
+    }
+  } // is Item
+
+
+  var items = _store__WEBPACK_IMPORTED_MODULE_2__["default"].state.item;
+
+  for (var _i in items) {
+    var _npc = items[_i];
+
+    if (_npc.shortname === text) {
+      return {
+        on: 'item',
+        args: [_i]
+      };
+    }
+  }
+
   return false;
 }
 
@@ -57731,51 +57898,35 @@ var Command = {
   parse: function parse(text) {
     var re = /([^ ]+)+/g;
     var matches = text.match(re);
-    var command = getCommand(matches);
-    console.log(text, command);
+    var action = getCommand(matches);
 
-    if (command !== null && command.args.length === 0) {
-      var command_index = matches.indexOf(command.command);
-      matches.splice(command_index, 1);
-      command.args = matches;
+    if (action === null) {
+      // there is no matching command
+      return null;
     }
 
-    if (command.on === null) {
-      if (command.args.length === 0) {
-        command.on = 'room';
+    var command = new Action(action);
+
+    if (command.isValid() && command.hasNoArguments()) {
+      command.getArguments(matches);
+    }
+
+    if (command.hasNoObject()) {
+      if (command.hasNoArguments()) {
+        command.setOn('room');
+        command.addArg(_store__WEBPACK_IMPORTED_MODULE_2__["default"].state.current_room);
       } else {
-        // Look for self
-        if (command.args.includes('self')) {
-          command.on = 'npc';
-          command.args = ['0000'];
-        } // look for npc (name or short name)
-        // look for item (name or short name)
-        else {
-            var found = false;
-            var obj;
+        var on = command.findObject();
 
-            for (var i in command.args) {
-              var arg = command.args[i];
-              obj = find(arg);
-              found = true;
-
-              if (obj !== false) {
-                break;
-              }
-            }
-
-            if (!found) {
-              command = null;
-            } else {
-              command = obj;
-            }
-          }
+        if (on === false) {
+          return null;
+        }
       }
     }
 
     return {
       text: text,
-      command: command,
+      command: command.getCommandObject(),
       timestamp: moment__WEBPACK_IMPORTED_MODULE_0___default()().unix()
     };
   }
@@ -58269,10 +58420,11 @@ function () {
 
   _createClass(Item, [{
     key: "init",
-    value: function init(data) {
-      this.name = data.title;
-      this.items = data.items;
-      this.description = data.description;
+    value: function init(item, store) {
+      var info = store.state.item[item];
+      this.name = info.name;
+      this.items = info.items;
+      this.description = info.description;
     }
   }, {
     key: "look",
@@ -58292,6 +58444,57 @@ function () {
 
 
 ;
+
+/***/ }),
+
+/***/ "./src/js/objects/mouse.js":
+/*!*********************************!*\
+  !*** ./src/js/objects/mouse.js ***!
+  \*********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Mouse; });
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../store */ "./src/js/store/index.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_1__);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+
+
+
+var Mouse =
+/*#__PURE__*/
+function () {
+  function Mouse() {
+    _classCallCheck(this, Mouse);
+
+    this.ai = [];
+    this.memory = [];
+  }
+
+  _createClass(Mouse, [{
+    key: "do",
+    value: function _do(args) {
+      var text = 'MOUSE replies, "I don\'t understand that command."';
+      _store__WEBPACK_IMPORTED_MODULE_0__["default"].dispatch('history', {
+        type: 'description',
+        text: text,
+        timestamp: moment__WEBPACK_IMPORTED_MODULE_1___default()().unix()
+      });
+    }
+  }]);
+
+  return Mouse;
+}();
+
+
 
 /***/ }),
 
@@ -58425,7 +58628,6 @@ function () {
       for (var i in this.exits) {
         count++;
         text += i;
-        console.log(this);
 
         if (this.isLocked(i)) {
           text += " :fa-lock-alt:";

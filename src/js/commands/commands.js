@@ -18,4 +18,21 @@ export default {
     move: { command: 'move', on: 'room', args: [] },
     // Look
     look: { command: 'look', on: null, args:[] },
+    // Special
+    mouse: { command: 'mouse', on:'mouse', args: []},
+    // Items:
+    /*
+    use: {command: 'use', on: 'item', args:[]},
+    take: {command: 'take', on: 'item', args:[]},
+    get: {command: 'take', on: 'item', args:[]},
+    place: {command: 'place', on: 'item', args:[]},
+    set: {command: 'place', on: 'item', args:[]},
+     */
+    // NPCs:
+    /*
+    say: {command: 'talk', on: 'item', args:[]},
+    ask: {command: 'talk', on: 'item', args:[]},
+    talk: {command: 'talk', on: 'item', args:[]},
+     */
+
 }

@@ -8,11 +8,12 @@ export default class Item {
         this.description = null;
     }
 
-    init(data) {
-        this.name = data.title;
-        this.items = data.items;
+    init(item, store) {
+        let info = store.state.item[item];
+        this.name = info.name;
+        this.items = info.items;
 
-        this.description = data.description;
+        this.description = info.description;
     }
 
     look(store) {
