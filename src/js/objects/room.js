@@ -1,7 +1,5 @@
 import moment from 'moment';
 
-const matter = require('gray-matter');
-
 const dirs = {
     n: 'north',
     w: 'west',
