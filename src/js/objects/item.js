@@ -12,6 +12,8 @@ export default class Item {
         let info = store.state.item[item];
         this.name = info.name;
         this.items = info.items;
+        this.actions = info.actions;
+        this.locked = info.locked === undefined?false:info.locked;
 
         this.description = info.description;
     }
@@ -25,5 +27,17 @@ export default class Item {
             text,
             timestamp: moment().unix(),
         });
+    }
+
+    use(store, item) {
+
+    }
+
+    take(store, item, from = null) {
+
+    }
+
+    place(store, item, location) {
+
     }
 };

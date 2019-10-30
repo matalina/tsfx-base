@@ -12,6 +12,8 @@ export default class Person {
         let info = store.state.npc[person];
         this.name = info.name;
         this.items = info.items;
+        this.always = info.always;
+        this.actions = info.actions;
 
         this.description = info.description;
     }
@@ -25,5 +27,13 @@ export default class Person {
             text,
             timestamp: moment().unix(),
         });
+    }
+
+    talk(store) {
+
+    }
+
+    give(store, item) {
+
     }
 };

@@ -97,4 +97,8 @@ export default class Room {
         new_room.init(room, store);
         new_room.look(store);
     }
+
+    search(store) {
+
+    }
 };

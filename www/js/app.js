@@ -57693,6 +57693,11 @@ __webpack_require__.r(__webpack_exports__);
     on: 'room',
     args: []
   },
+  go: {
+    command: 'move',
+    on: 'room',
+    args: []
+  },
   // Look
   look: {
     command: 'look',
@@ -57704,23 +57709,60 @@ __webpack_require__.r(__webpack_exports__);
     command: 'mouse',
     on: 'mouse',
     args: []
-  } // Items:
-
-  /*
-  use: {command: 'use', on: 'item', args:[]},
-  take: {command: 'take', on: 'item', args:[]},
-  get: {command: 'take', on: 'item', args:[]},
-  place: {command: 'place', on: 'item', args:[]},
-  set: {command: 'place', on: 'item', args:[]},
-   */
+  },
+  // Items:
+  use: {
+    command: 'use',
+    on: 'item',
+    args: []
+  },
+  take: {
+    command: 'take',
+    on: 'item',
+    args: []
+  },
+  get: {
+    command: 'take',
+    on: 'item',
+    args: []
+  },
+  place: {
+    command: 'place',
+    on: 'item',
+    args: []
+  },
+  set: {
+    command: 'place',
+    on: 'item',
+    args: []
+  },
   // NPCs:
-
-  /*
-  say: {command: 'talk', on: 'item', args:[]},
-  ask: {command: 'talk', on: 'item', args:[]},
-  talk: {command: 'talk', on: 'item', args:[]},
-   */
-
+  say: {
+    command: 'talk',
+    on: 'npc',
+    args: []
+  },
+  ask: {
+    command: 'talk',
+    on: 'npc',
+    args: []
+  },
+  talk: {
+    command: 'talk',
+    on: 'npc',
+    args: []
+  },
+  give: {
+    command: 'give',
+    on: 'npc',
+    args: []
+  },
+  // Rooms:
+  search: {
+    command: 'search',
+    on: 'room',
+    args: []
+  }
 });
 
 /***/ }),
@@ -58272,9 +58314,9 @@ function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
-  item: ['0001', '0002', '0003', '0004', '0005', '0006', '0007', '0008', '0009'],
+  item: ['0001', '0002', '0003', '0004', '0005', '0006', '0007', '0008', '0009', '0010', '0011', '0012', '0013', '0014', '0015', '0016', '0017'],
   npc: ['0000', '0001'],
-  room: ['0001']
+  room: ['0001', '0002', '0003']
 });
 
 /***/ }),
@@ -58424,6 +58466,8 @@ function () {
       var info = store.state.item[item];
       this.name = info.name;
       this.items = info.items;
+      this.actions = info.actions;
+      this.locked = info.locked === undefined ? false : info.locked;
       this.description = info.description;
     }
   }, {
@@ -58437,6 +58481,17 @@ function () {
         timestamp: moment__WEBPACK_IMPORTED_MODULE_0___default()().unix()
       });
     }
+  }, {
+    key: "use",
+    value: function use(store, item) {}
+  }, {
+    key: "take",
+    value: function take(store, item) {
+      var from = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    }
+  }, {
+    key: "place",
+    value: function place(store, item, location) {}
   }]);
 
   return Item;
@@ -58535,6 +58590,8 @@ function () {
       var info = store.state.npc[person];
       this.name = info.name;
       this.items = info.items;
+      this.always = info.always;
+      this.actions = info.actions;
       this.description = info.description;
     }
   }, {
@@ -58548,6 +58605,12 @@ function () {
         timestamp: moment__WEBPACK_IMPORTED_MODULE_0___default()().unix()
       });
     }
+  }, {
+    key: "talk",
+    value: function talk(store) {}
+  }, {
+    key: "give",
+    value: function give(store, item) {}
   }]);
 
   return Person;
@@ -58576,9 +58639,6 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-
-
-var matter = __webpack_require__(/*! gray-matter */ "./node_modules/gray-matter/index.js");
 
 var dirs = {
   n: 'north',
@@ -58684,6 +58744,9 @@ function () {
       new_room.init(room, store);
       new_room.look(store);
     }
+  }, {
+    key: "search",
+    value: function search(store) {}
   }]);
 
   return Room;
@@ -58789,6 +58852,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   start: function start(state) {
     state.new_game = false;
+    state.character = state.npc['0000'];
   },
   move: function move(state, room) {
     state.current_room = room;

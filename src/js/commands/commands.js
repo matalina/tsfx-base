@@ -16,23 +16,23 @@ export default {
     d: { command: 'move', on: 'room', args: ['d'] },
     down: { command: 'move', on: 'room', args: ['down'] },
     move: { command: 'move', on: 'room', args: [] },
+    go: {command: 'move', on: 'room', args: []},
     // Look
     look: { command: 'look', on: null, args:[] },
     // Special
     mouse: { command: 'mouse', on:'mouse', args: []},
     // Items:
-    /*
     use: {command: 'use', on: 'item', args:[]},
     take: {command: 'take', on: 'item', args:[]},
     get: {command: 'take', on: 'item', args:[]},
     place: {command: 'place', on: 'item', args:[]},
     set: {command: 'place', on: 'item', args:[]},
-     */
     // NPCs:
-    /*
-    say: {command: 'talk', on: 'item', args:[]},
-    ask: {command: 'talk', on: 'item', args:[]},
-    talk: {command: 'talk', on: 'item', args:[]},
-     */
+    say: {command: 'talk', on: 'npc', args:[]},
+    ask: {command: 'talk', on: 'npc', args:[]},
+    talk: {command: 'talk', on: 'npc', args:[]},
+    give: {command: 'give', on: 'npc', args:[]},
+    // Rooms:
+    search: {command: 'search', on: 'room', args:[]},
 
 }
