@@ -58839,8 +58839,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! D:\projects\stuff\tsfx\src\js\app.js */"./src/js/app.js");
-module.exports = __webpack_require__(/*! D:\projects\stuff\tsfx\src\scss\app.scss */"./src/scss/app.scss");
+__webpack_require__(/*! /mnt/d/Personal/Development/game-off-19/src/js/app.js */"./src/js/app.js");
+module.exports = __webpack_require__(/*! /mnt/d/Personal/Development/game-off-19/src/scss/app.scss */"./src/scss/app.scss");
 
 
 /***/ }),
