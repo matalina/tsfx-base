@@ -14,7 +14,7 @@
   "author": "Alicia Wilkerson <alicia@akddev.net>",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "cross-env": "^6.0.3",
     "gray-matter": "^4.0.2",
     "http-server": "^0.11.1",
